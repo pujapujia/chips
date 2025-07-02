@@ -1,9 +1,12 @@
 require("dotenv").config();
 const fetch = require("node-fetch");
 
-module.exports = async (req, res) => {
+exports.handler = async (event, context) => {
   if (!process.env.GITHUB_REPOSITORY || !process.env.CLAIM_TOKEN) {
-    return res.status(500).json({ error: "Server misconfigured" });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Server misconfigured" }),
+    };
   }
 
   const GITHUB_API_URL = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/claims.json`;
@@ -19,7 +22,10 @@ module.exports = async (req, res) => {
     });
 
     if (response.status === 404) {
-      return res.json({ claims: [] });
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ claims: [] }),
+      };
     }
 
     if (!response.ok) throw new Error("Failed to fetch claims");
@@ -27,9 +33,16 @@ module.exports = async (req, res) => {
     const data = await response.json();
     const content = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
     const walletList = Object.keys(content).reverse();
-    res.json({ claims: walletList });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ claims: walletList }),
+    };
   } catch (err) {
     console.error("History fetch error:", err.message);
-    res.status(500).json({ error: "Failed to load history" });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Failed to load history" }),
+    };
   }
 };
