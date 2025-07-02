@@ -240,9 +240,9 @@
           const txLink = `http://testnet.chipsprotocol.com/tx/${data.txHash}`;
           resultDiv.innerHTML = `✅ Success! <a href="${txLink}" target="_blank">${txLink}</a>`;
           totalClaimedDiv.innerHTML = `🔥 Total wallet claimed: ${data.totalClaimed}`;
-          const last10 = data.allClaims.slice(-10).reverse();
-          historyBlock.innerText = last10.map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
+          historyBlock.innerText = data.allClaims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
           grecaptcha.reset();
+          historyBlock.scrollTop = 0; // Scroll ke paling atas (lihat yang terbaru)
         } else {
           resultDiv.innerHTML = `❌ Error: ${data.error}`;
           grecaptcha.reset();
@@ -266,8 +266,9 @@
         const data = await res.json();
         if (res.ok && data.claims) {
           document.getElementById("totalClaimed").innerText = `🔥 Total wallet claimed: ${data.claims.length}`;
-          const last10 = data.claims.slice(-10).reverse();
-          document.getElementById("claimHistory").innerText = last10.map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
+          const historyBlock = document.getElementById("claimHistory");
+          historyBlock.innerText = data.claims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
+          historyBlock.scrollTop = 0;
         } else {
           document.getElementById("claimHistory").innerText = "❌ Failed to load history.";
         }
