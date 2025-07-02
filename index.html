@@ -9,23 +9,20 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      background-color: #000;
-      font-family: 'Courier New', Courier, monospace;
+      background: #000;
       color: #fff;
-      font-size: 16px;
+      font-family: 'Courier New', Courier, monospace;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
 
     main {
-      flex: 1 0 auto;
+      flex: 1;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      justify-content: flex-start;
       padding: 20px;
-      box-sizing: border-box;
     }
 
     .container {
@@ -35,10 +32,9 @@
 
     h1 {
       font-size: 24px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
       text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 20px;
     }
 
     input, button {
@@ -90,15 +86,14 @@
       background-color: #111;
       border: 2px solid #333;
       color: #0f0;
-      text-align: left;
       padding: 10px;
-      height: 250px;             /* tetap ukuran 10 wallet */
-      overflow-y: auto;          /* biar bisa scroll */
       font-size: 12px;
       margin-bottom: 30px;
       white-space: pre-wrap;
       width: 100%;
       box-sizing: border-box;
+      height: 250px; /* tetap 10 wallet */
+      overflow-y: auto; /* scroll hanya di dalam sini */
     }
 
     .donate-section {
@@ -110,9 +105,6 @@
       background-color: #000;
       padding: 5px;
       border: 2px solid #000;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
       display: inline-block;
       margin-bottom: 5px;
     }
@@ -137,7 +129,6 @@
       padding: 15px 0;
       text-align: center;
       font-size: 14px;
-      flex-shrink: 0;
     }
 
     .footer-label {
@@ -161,8 +152,8 @@
     }
 
     @media (max-width: 500px) {
-      main {
-        padding: 15px;
+      .container {
+        padding: 10px;
       }
 
       input, button {
