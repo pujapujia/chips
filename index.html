@@ -9,12 +9,13 @@
     html, body {
       margin: 0;
       padding: 0;
+      height: 100%;
       background-color: #000;
       font-family: 'Courier New', Courier, monospace;
       color: #fff;
       font-size: 16px;
-      height: 100%;
     }
+
     body {
       display: flex;
       flex-direction: column;
@@ -22,15 +23,16 @@
     }
 
     .container {
-      width: 100%;
-      max-width: 450px;
-      margin: auto;
-      padding: 20px;
-      box-sizing: border-box;
-      flex-grow: 1;
+      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: start;
+      align-items: center;
+      padding: 20px;
+      width: 100%;
+      max-width: 480px;
+      margin: auto;
+      box-sizing: border-box;
     }
 
     h1 {
@@ -135,7 +137,6 @@
       padding: 15px 0;
       text-align: center;
       font-size: 14px;
-      margin-top: auto;
     }
 
     .footer-label {
@@ -158,7 +159,6 @@
       text-decoration: underline;
     }
 
-    /* ✅ RESPONSIF di layar kecil */
     @media (max-width: 500px) {
       .container {
         padding: 15px;
