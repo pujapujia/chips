@@ -84,7 +84,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Wallet already claimed" });
     }
 
-    const provider = new ethers.JsonRpcProvider("http://20.63.3.101:8545");
+    const provider = new ethers.JsonRpcProvider("https://holistic-purple-period.glitch.me");
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     const tx = await wallet.sendTransaction({
