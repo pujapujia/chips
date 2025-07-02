@@ -9,5 +9,5 @@
   force = true
 
 [functions]
-  node_bundler = "esbuild"
+  node_bundler = "none"
   included_files = ["netlify/functions/claim.js", "netlify/functions/claim-history.js"]
