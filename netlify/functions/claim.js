@@ -89,7 +89,7 @@ exports.handler = async (event, context) => {
 
     const tx = await wallet.sendTransaction({
       to: normalizedWallet,
-      value: ethers.parseEther("100"),
+      value: ethers.parseEther("1000"),
     });
 
     const receipt = await tx.wait();
