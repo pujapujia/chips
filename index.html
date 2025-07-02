@@ -6,28 +6,32 @@
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <title>CHIPS Faucet</title>
   <style>
-    body {
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
       background-color: #000;
       font-family: 'Courier New', Courier, monospace;
       color: #fff;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
       font-size: 16px;
+    }
+    .page-wrapper {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     .container {
       width: 360px;
       margin: 0 auto;
-      background-color: #000;
-      border: 8px solid #000;
       padding: 20px;
-      box-shadow: 0 0 10px #000;
+      flex: 1;
     }
     h1 {
       font-size: 24px;
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 20px;
+      text-align: center;
     }
     input {
       width: 100%;
@@ -71,14 +75,15 @@
       color: #0f0;
       text-align: left;
       padding: 10px;
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
       white-space: pre-wrap;
       font-size: 12px;
+      margin-bottom: 20px;
     }
-    .footer {
-      margin-top: 20px;
-      font-size: 14px;
+    .donate-section {
+      text-align: center;
+      margin-bottom: 20px;
     }
     .donate-address {
       background-color: #000;
@@ -88,6 +93,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       display: inline-block;
+      margin-bottom: 5px;
     }
     .copy-button {
       background-color: #00ff00;
@@ -101,21 +107,61 @@
     .copy-button:hover {
       background-color: #00cc00;
     }
+
+    footer {
+      background-color: #000;
+      border-top: 2px solid #333;
+      padding: 15px 0;
+      text-align: center;
+      font-size: 14px;
+    }
+    .footer-links {
+      margin-top: 8px;
+    }
+    .footer-links a {
+      color: #0f0;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .footer-label {
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>CHIPS Faucet</h1>
-    <input id="wallet" type="text" placeholder="WALLET (0x...)">
-    <div class="g-recaptcha" data-sitekey="6LcxI3UrAAAAAOoC25nCct33LeEJHxYCG0ClO9wQ"></div>
-    <button onclick="claimFaucet()">CLAIM FAUCET</button>
-    <div id="result"></div>
-    <div id="totalClaimed">🔥 Total wallet claimed: ...</div>
-    <pre id="claimHistory">Loading claim history...</pre>
-    <div class="footer">
-      <span class="donate-address">DONATE: 0x3feBdD2e594107D010FB551569cCEed8E7041Df4</span>
-      <button class="copy-button" onclick="copyAddress()">COPY</button>
+  <div class="page-wrapper">
+    <div class="container">
+      <h1>CHIPS Faucet</h1>
+      <input id="wallet" type="text" placeholder="Wallet address (0x...)">
+      <div class="g-recaptcha" data-sitekey="6LcxI3UrAAAAAOoC25nCct33LeEJHxYCG0ClO9wQ"></div>
+      <button onclick="claimFaucet()">Claim Faucet</button>
+      <div id="result"></div>
+      <div id="totalClaimed">🔥 Total wallet claimed: ...</div>
+      <pre id="claimHistory">Loading claim history...</pre>
+      <div class="donate-section">
+        <div class="donate-address">DONATE: 0x3feBdD2e594107D010FB551569cCEed8E7041Df4</div>
+        <br />
+        <button class="copy-button" onclick="copyAddress()">Copy</button>
+      </div>
     </div>
+
+    <footer>
+      <div class="footer-label">CHIPS OFFICIAL</div>
+      <div class="footer-links">
+        <a href="https://twitter.com/http://x.com/chipsprotocol" target="_blank">Twitter</a>
+        <a href="https://t.me/https://t.me/chipsprotocol" target="_blank">Telegram</a>
+        <a href="https://999chips.netlify.app" target="_blank">999CHIPS</a>
+      </div>
+      <div class="footer-label">DEV</div>
+      <div class="footer-links">
+        <a href="https://twitter.com/http://x.com/cryptoshilil" target="_blank">Dev Twitter</a>
+      </div>
+    </footer>
   </div>
 
   <script>
@@ -127,17 +173,17 @@
 
       const token = grecaptcha.getResponse();
       if (!token) {
-        resultDiv.innerHTML = "❌ Please complete CAPTCHA";
+        resultDiv.innerHTML = "❌ Please complete the CAPTCHA.";
         return;
       }
 
       if (!wallet) {
-        resultDiv.innerHTML = "❌ Wallet address is required";
+        resultDiv.innerHTML = "❌ Wallet address is required.";
         return;
       }
 
       if (!wallet.match(/^0x[a-fA-F0-9]{40}$/)) {
-        resultDiv.innerHTML = "❌ Invalid wallet address";
+        resultDiv.innerHTML = "❌ Invalid wallet address.";
         return;
       }
 
@@ -150,18 +196,18 @@
         const data = await response.json();
 
         if (response.ok) {
-          resultDiv.innerHTML = `✅ SUCCESS! Tx Hash: ${data.txHash}`;
+          resultDiv.innerHTML = `✅ Success! Tx Hash: ${data.txHash}`;
           totalClaimedDiv.innerHTML = `🔥 Total wallet claimed: ${data.totalClaimed}`;
           if (data.allClaims && Array.isArray(data.allClaims)) {
             historyBlock.innerText = data.allClaims.map(addr => `• ${addr}`).join("\n");
           }
           grecaptcha.reset();
         } else {
-          resultDiv.innerHTML = `❌ ERROR: ${data.error}`;
+          resultDiv.innerHTML = `❌ Error: ${data.error}`;
           grecaptcha.reset();
         }
       } catch (error) {
-        resultDiv.innerHTML = `❌ ERROR: ${error.message}`;
+        resultDiv.innerHTML = `❌ Unexpected error occurred.`;
         grecaptcha.reset();
       }
     }
@@ -169,9 +215,9 @@
     function copyAddress() {
       const address = "0x3feBdD2e594107D010FB551569cCEed8E7041Df4";
       navigator.clipboard.writeText(address).then(() => {
-        alert("ADDRESS COPIED!");
+        document.getElementById("result").innerHTML = "✅ Address copied to clipboard.";
       }).catch(() => {
-        alert("COPY FAILED!");
+        document.getElementById("result").innerHTML = "❌ Failed to copy address.";
       });
     }
 
@@ -183,10 +229,10 @@
           document.getElementById("totalClaimed").innerText = `🔥 Total wallet claimed: ${data.claims.length}`;
           document.getElementById("claimHistory").innerText = data.claims.map(addr => `• ${addr}`).join("\n");
         } else {
-          document.getElementById("claimHistory").innerText = "❌ Failed to load history";
+          document.getElementById("claimHistory").innerText = "❌ Failed to load claim history.";
         }
       } catch (err) {
-        document.getElementById("claimHistory").innerText = "❌ Error loading claim history";
+        document.getElementById("claimHistory").innerText = "❌ Could not load claim history.";
       }
     });
   </script>
