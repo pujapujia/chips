@@ -12,16 +12,19 @@
       background: #000;
       color: #fff;
       font-family: 'Courier New', Courier, monospace;
-      display: flex;
-      flex-direction: column;
+      height: 100%;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: 1fr auto;
       min-height: 100vh;
     }
 
     main {
-      flex: 1;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: start;
       padding: 20px;
     }
 
@@ -88,12 +91,12 @@
       color: #0f0;
       padding: 10px;
       font-size: 12px;
-      margin-bottom: 30px;
       white-space: pre-wrap;
       width: 100%;
       box-sizing: border-box;
-      height: 250px; /* tetap 10 wallet */
-      overflow-y: auto; /* scroll hanya di dalam sini */
+      height: 250px;
+      overflow-y: auto;
+      margin-bottom: 30px;
     }
 
     .donate-section {
