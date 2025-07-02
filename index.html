@@ -20,15 +20,19 @@
       flex-direction: column;
       min-height: 100vh;
     }
+
     .container {
-      width: 400px;
+      width: 100%;
+      max-width: 450px;
       margin: auto;
       padding: 20px;
+      box-sizing: border-box;
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       justify-content: start;
     }
+
     h1 {
       font-size: 24px;
       text-transform: uppercase;
@@ -36,29 +40,33 @@
       margin-bottom: 20px;
       text-align: center;
     }
-    input {
+
+    input, button {
       width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input {
       background-color: #fff;
       color: #000;
       border: 4px solid #000;
-      padding: 8px;
-      font-size: 14px;
-      margin-bottom: 10px;
     }
+
     button {
-      width: 100%;
       background-color: #00ff00;
       color: #000;
       border: 4px solid #000;
-      padding: 10px;
-      font-size: 16px;
       text-transform: uppercase;
       cursor: pointer;
-      margin-bottom: 10px;
     }
+
     button:hover {
       background-color: #00cc00;
     }
+
     #result {
       background-color: #000;
       border: 4px solid #000;
@@ -67,40 +75,46 @@
       margin-bottom: 20px;
       word-break: break-word;
     }
+
     #result a {
       color: #0f0;
       word-break: break-all;
     }
+
     #totalClaimed {
       font-size: 14px;
       margin-bottom: 10px;
     }
+
     #claimHistory {
       background-color: #111;
       border: 2px solid #333;
       color: #0f0;
       text-align: left;
       padding: 10px;
-      max-height: 300px;
+      max-height: 250px;
       overflow-y: auto;
       font-size: 12px;
       margin-bottom: 30px;
       white-space: pre-wrap;
     }
+
     .donate-section {
       text-align: center;
       margin-bottom: 30px;
     }
+
     .donate-address {
       background-color: #000;
       padding: 5px;
       border: 2px solid #000;
-      max-width: 280px;
+      max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       display: inline-block;
       margin-bottom: 5px;
     }
+
     .copy-button {
       background-color: #00ff00;
       color: #000;
@@ -110,6 +124,7 @@
       cursor: pointer;
       text-transform: uppercase;
     }
+
     .copy-button:hover {
       background-color: #00cc00;
     }
@@ -122,21 +137,46 @@
       font-size: 14px;
       margin-top: auto;
     }
+
+    .footer-label {
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
     .footer-links {
       margin-top: 8px;
     }
+
     .footer-links a {
       color: #0f0;
       text-decoration: none;
       margin: 0 8px;
     }
+
     .footer-links a:hover {
       text-decoration: underline;
     }
-    .footer-label {
-      font-weight: bold;
-      color: #fff;
-      margin-bottom: 4px;
+
+    /* ✅ RESPONSIF di layar kecil */
+    @media (max-width: 500px) {
+      .container {
+        padding: 15px;
+      }
+
+      input, button {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      #claimHistory {
+        font-size: 11px;
+        max-height: 200px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
