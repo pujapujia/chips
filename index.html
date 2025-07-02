@@ -14,22 +14,24 @@
       font-family: 'Courier New', Courier, monospace;
       color: #fff;
       font-size: 16px;
-      display: flex;
-      flex-direction: column;
     }
 
-    main {
-      flex: 1 1 auto;
+    body {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      overflow-y: auto;
+      min-height: 100vh;
     }
 
     .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      align-items: center;
+      padding: 20px;
       width: 100%;
       max-width: 480px;
-      padding: 20px;
+      margin: auto;
       box-sizing: border-box;
     }
 
@@ -87,21 +89,20 @@
     }
 
     #claimHistory {
-  background-color: #111;
-  border: 2px solid #333;
-  color: #0f0;
-  text-align: left;
-  padding: 10px;
-  height: 250px;           
-  overflow-y: auto;        
-  overflow-x: hidden;        
-  font-size: 12px;
-  margin-bottom: 30px;
-  white-space: pre-wrap;
-  width: 100%;
-  box-sizing: border-box;
-}
-
+      background-color: #111;
+      border: 2px solid #333;
+      color: #0f0;
+      text-align: left;
+      padding: 10px;
+      height: 250px;             
+      overflow-y: auto;          
+      overflow-x: hidden;
+      font-size: 12px;
+      margin-bottom: 30px;
+      white-space: pre-wrap;
+      width: 100%;
+      box-sizing: border-box;
+    }
 
     .donate-section {
       text-align: center;
@@ -139,7 +140,6 @@
       padding: 15px 0;
       text-align: center;
       font-size: 14px;
-      flex-shrink: 0;
     }
 
     .footer-label {
@@ -174,7 +174,7 @@
 
       #claimHistory {
         font-size: 11px;
-        max-height: 200px;
+        height: 200px;
       }
 
       h1 {
@@ -184,21 +184,19 @@
   </style>
 </head>
 <body>
-  <main>
-    <div class="container">
-      <h1>CHIPS Faucet</h1>
-      <input id="wallet" type="text" placeholder="Wallet address (0x...)">
-      <div class="g-recaptcha" data-sitekey="6LcxI3UrAAAAAOoC25nCct33LeEJHxYCG0ClO9wQ"></div>
-      <button onclick="claimFaucet()">Claim Faucet</button>
-      <div id="result"></div>
-      <div id="totalClaimed">🔥 Total wallet claimed: ...</div>
-      <pre id="claimHistory">Loading claim history...</pre>
-      <div class="donate-section">
-        <div class="donate-address">DONATE: 0x3feBdD2e594107D010FB551569cCEed8E7041Df4</div><br />
-        <button class="copy-button" onclick="copyAddress()">Copy</button>
-      </div>
+  <div class="container">
+    <h1>CHIPS Faucet</h1>
+    <input id="wallet" type="text" placeholder="Wallet address (0x...)">
+    <div class="g-recaptcha" data-sitekey="6LcxI3UrAAAAAOoC25nCct33LeEJHxYCG0ClO9wQ"></div>
+    <button onclick="claimFaucet()">Claim Faucet</button>
+    <div id="result"></div>
+    <div id="totalClaimed">🔥 Total wallet claimed: ...</div>
+    <pre id="claimHistory">Loading claim history...</pre>
+    <div class="donate-section">
+      <div class="donate-address">DONATE: 0x3feBdD2e594107D010FB551569cCEed8E7041Df4</div><br />
+      <button class="copy-button" onclick="copyAddress()">Copy</button>
     </div>
-  </main>
+  </div>
 
   <footer>
     <div class="footer-label">CHIPS OFFICIAL</div>
@@ -244,7 +242,6 @@
           totalClaimedDiv.innerHTML = `🔥 Total wallet claimed: ${data.totalClaimed}`;
           historyBlock.innerText = data.allClaims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
           grecaptcha.reset();
-          historyBlock.scrollTop = 0; // Scroll ke paling atas (lihat yang terbaru)
         } else {
           resultDiv.innerHTML = `❌ Error: ${data.error}`;
           grecaptcha.reset();
@@ -268,9 +265,7 @@
         const data = await res.json();
         if (res.ok && data.claims) {
           document.getElementById("totalClaimed").innerText = `🔥 Total wallet claimed: ${data.claims.length}`;
-          const historyBlock = document.getElementById("claimHistory");
-          historyBlock.innerText = data.claims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
-          historyBlock.scrollTop = 0;
+          document.getElementById("claimHistory").innerText = data.claims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
         } else {
           document.getElementById("claimHistory").innerText = "❌ Failed to load history.";
         }
