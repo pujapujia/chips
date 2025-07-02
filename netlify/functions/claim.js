@@ -2,89 +2,89 @@ require("dotenv").config();
 const { ethers } = require("ethers");
 const fetch = require("node-fetch");
 
-module.exports = async (req, res) => {
-  if (!process.env.PRIVATE_KEY || !process.env.CLAIM_TOKEN || !process.env.GITHUB_REPOSITORY || !process.env.RECAPTCHA_SECRET_KEY) {
-    return res.status(500).json({ error: "Server misconfigured" });
-  }
-
-  const GITHUB_API_URL = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/claims.json`;
-  const GITHUB_TOKEN = process.env.CLAIM_TOKEN;
-
-  async function verifyRecaptcha(token) {
-    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
-    });
-    const data = await response.json();
-    return data.success;
-  }
-
-  async function readClaims() {
-    const response = await fetch(GITHUB_API_URL, {
-      method: "GET",
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github+json",
-        "User-Agent": "chips-faucet",
-      },
-    });
-
-    if (response.status === 404) return { content: {}, sha: null };
-
-    const data = await response.json();
-    const content = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
-    return { content, sha: data.sha };
-  }
-
-  async function writeClaims(claims, sha) {
-    const content = Buffer.from(JSON.stringify(claims, null, 2)).toString("base64");
-    const body = {
-      message: `Update claims.json for ${req.body.wallet}`,
-      content,
-    };
-    if (sha) body.sha = sha;
-
-    const response = await fetch(GITHUB_API_URL, {
-      method: "PUT",
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github+json",
-        "User-Agent": "chips-faucet",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(`GitHub write error: ${err.message}`);
-    }
-  }
-
+exports.handler = async (event, context) => {
   try {
-    const { wallet: targetWallet, captcha } = req.body;
+    if (!process.env.PRIVATE_KEY || !process.env.CLAIM_TOKEN || !process.env.GITHUB_REPOSITORY || !process.env.RECAPTCHA_SECRET_KEY) {
+      return { statusCode: 500, body: JSON.stringify({ error: "Server misconfigured" }) };
+    }
 
-    if (!targetWallet) return res.status(400).json({ error: "Wallet is required" });
-    if (!captcha) return res.status(400).json({ error: "CAPTCHA is required" });
+    const GITHUB_API_URL = `https://api.github.com/repos/${process.env.GITHUB_REPOSITORY}/contents/claims.json`;
+    const GITHUB_TOKEN = process.env.CLAIM_TOKEN;
+
+    const body = JSON.parse(event.body);
+    const { wallet: targetWallet, captcha } = body;
+
+    if (!targetWallet) return { statusCode: 400, body: JSON.stringify({ error: "Wallet is required" }) };
+    if (!captcha) return { statusCode: 400, body: JSON.stringify({ error: "CAPTCHA is required" }) };
+
+    async function verifyRecaptcha(token) {
+      const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
+      });
+      const data = await response.json();
+      return data.success;
+    }
 
     if (!(await verifyRecaptcha(captcha))) {
-      return res.status(400).json({ error: "Invalid CAPTCHA" });
+      return { statusCode: 400, body: JSON.stringify({ error: "Invalid CAPTCHA" }) };
     }
 
     let normalizedWallet;
     try {
       normalizedWallet = ethers.getAddress(targetWallet);
     } catch {
-      return res.status(400).json({ error: "Invalid wallet address" });
+      return { statusCode: 400, body: JSON.stringify({ error: "Invalid wallet address" }) };
+    }
+
+    async function readClaims() {
+      const response = await fetch(GITHUB_API_URL, {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "chips-faucet",
+        },
+      });
+
+      if (response.status === 404) return { content: {}, sha: null };
+
+      const data = await response.json();
+      const content = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+      return { content, sha: data.sha };
+    }
+
+    async function writeClaims(claims, sha) {
+      const content = Buffer.from(JSON.stringify(claims, null, 2)).toString("base64");
+      const body = {
+        message: `Update claims.json for ${targetWallet}`,
+        content,
+      };
+      if (sha) body.sha = sha;
+
+      const response = await fetch(GITHUB_API_URL, {
+        method: "PUT",
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "chips-faucet",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(`GitHub write error: ${err.message}`);
+      }
     }
 
     const { content: claims, sha } = await readClaims();
 
     if (claims[normalizedWallet]) {
-      return res.status(400).json({ error: "Wallet already claimed" });
+      return { statusCode: 400, body: JSON.stringify({ error: "Wallet already claimed" }) };
     }
 
-    const provider = new ethers.JsonRpcProvider("https://holistic-purple-period.glitch.me");
+    const provider = new ethers.JsonRpcProvider("http://20.63.3.101:8545");
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     const tx = await wallet.sendTransaction({
@@ -99,13 +99,16 @@ module.exports = async (req, res) => {
 
     const allClaims = Object.keys(claims).reverse();
 
-    return res.json({
-      txHash: receipt.hash,
-      totalClaimed: allClaims.length,
-      allClaims,
-    });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        txHash: receipt.hash,
+        totalClaimed: allClaims.length,
+        allClaims,
+      }),
+    };
   } catch (error) {
     console.error("Claim error:", error.message);
-    return res.status(500).json({ error: `Claim failed: ${error.message}` });
+    return { statusCode: 500, body: JSON.stringify({ error: `Claim failed: ${error.message}` }) };
   }
 };
