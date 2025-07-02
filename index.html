@@ -21,7 +21,7 @@
       flex-direction: column;
     }
     .container {
-      width: 360px;
+      width: 400px;
       margin: 0 auto;
       padding: 20px;
       flex: 1;
@@ -64,6 +64,7 @@
       min-height: 50px;
       color: #fff;
       margin-bottom: 20px;
+      word-break: break-all;
     }
     #totalClaimed {
       font-size: 14px;
@@ -75,11 +76,11 @@
       color: #0f0;
       text-align: left;
       padding: 10px;
-      max-height: 250px;
-      overflow-y: auto;
-      white-space: pre-wrap;
+      height: 300px;
+      overflow-y: scroll;
       font-size: 12px;
       margin-bottom: 20px;
+      white-space: pre-wrap;
     }
     .donate-section {
       text-align: center;
@@ -89,7 +90,7 @@
       background-color: #000;
       padding: 5px;
       border: 2px solid #000;
-      max-width: 200px;
+      max-width: 280px;
       overflow: hidden;
       text-overflow: ellipsis;
       display: inline-block;
@@ -153,13 +154,13 @@
     <footer>
       <div class="footer-label">CHIPS OFFICIAL</div>
       <div class="footer-links">
-        <a href="https://twitter.com/http://x.com/chipsprotocol" target="_blank">Twitter</a>
-        <a href="https://t.me/https://t.me/chipsprotocol" target="_blank">Telegram</a>
+        <a href="https://x.com/chipsprotocol" target="_blank">Twitter</a>
+        <a href="https://t.me/chipsprotocol" target="_blank">Telegram</a>
         <a href="https://999chips.netlify.app" target="_blank">999CHIPS</a>
       </div>
       <div class="footer-label">DEV</div>
       <div class="footer-links">
-        <a href="https://twitter.com/http://x.com/cryptoshilil" target="_blank">Dev Twitter</a>
+        <a href="https://x.com/cryptoshilil" target="_blank">Dev Twitter</a>
       </div>
     </footer>
   </div>
@@ -196,10 +197,11 @@
         const data = await response.json();
 
         if (response.ok) {
-          resultDiv.innerHTML = `✅ Success! Tx Hash: ${data.txHash}`;
+          const txUrl = `http://testnet.chipsprotocol.com/tx/${data.txHash}`;
+          resultDiv.innerHTML = `✅ Success! <a href="${txUrl}" target="_blank">${txUrl}</a>`;
           totalClaimedDiv.innerHTML = `🔥 Total wallet claimed: ${data.totalClaimed}`;
           if (data.allClaims && Array.isArray(data.allClaims)) {
-            historyBlock.innerText = data.allClaims.map(addr => `• ${addr}`).join("\n");
+            historyBlock.innerText = data.allClaims.map(addr => `• ${addr} — 1000 CHIPS`).reverse().join("\n");
           }
           grecaptcha.reset();
         } else {
@@ -227,7 +229,7 @@
         const data = await res.json();
         if (res.ok && data.claims) {
           document.getElementById("totalClaimed").innerText = `🔥 Total wallet claimed: ${data.claims.length}`;
-          document.getElementById("claimHistory").innerText = data.claims.map(addr => `• ${addr}`).join("\n");
+          document.getElementById("claimHistory").innerText = data.claims.map(addr => `• ${addr} — 1000 CHIPS`).reverse().join("\n");
         } else {
           document.getElementById("claimHistory").innerText = "❌ Failed to load claim history.";
         }
