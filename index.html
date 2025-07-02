@@ -7,24 +7,24 @@
   <title>CHIPS Faucet</title>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
       padding: 0;
       background-color: #000;
       font-family: 'Courier New', Courier, monospace;
       color: #fff;
       font-size: 16px;
-    }
-    .page-wrapper {
       min-height: 100%;
+    }
+    body {
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
     .container {
       width: 400px;
-      margin: 0 auto;
+      margin: auto;
       padding: 20px;
-      flex: 1;
+      flex-grow: 1;
     }
     h1 {
       font-size: 24px;
@@ -62,9 +62,8 @@
       padding: 10px;
       font-size: 14px;
       min-height: 50px;
-      color: #fff;
       margin-bottom: 20px;
-      word-break: break-all;
+      word-break: break-word;
     }
     #totalClaimed {
       font-size: 14px;
@@ -76,15 +75,15 @@
       color: #0f0;
       text-align: left;
       padding: 10px;
-      height: 300px;
-      overflow-y: scroll;
+      max-height: 300px;
+      overflow-y: auto;
       font-size: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       white-space: pre-wrap;
     }
     .donate-section {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
     .donate-address {
       background-color: #000;
@@ -115,6 +114,7 @@
       padding: 15px 0;
       text-align: center;
       font-size: 14px;
+      margin-top: auto;
     }
     .footer-links {
       margin-top: 8px;
@@ -135,35 +135,32 @@
   </style>
 </head>
 <body>
-  <div class="page-wrapper">
-    <div class="container">
-      <h1>CHIPS Faucet</h1>
-      <input id="wallet" type="text" placeholder="Wallet address (0x...)">
-      <div class="g-recaptcha" data-sitekey="6LcxI3UrAAAAAOoC25nCct33LeEJHxYCG0ClO9wQ"></div>
-      <button onclick="claimFaucet()">Claim Faucet</button>
-      <div id="result"></div>
-      <div id="totalClaimed">🔥 Total wallet claimed: ...</div>
-      <pre id="claimHistory">Loading claim history...</pre>
-      <div class="donate-section">
-        <div class="donate-address">DONATE: 0x3feBdD2e594107D010FB551569cCEed8E7041Df4</div>
-        <br />
-        <button class="copy-button" onclick="copyAddress()">Copy</button>
-      </div>
+  <div class="container">
+    <h1>CHIPS Faucet</h1>
+    <input id="wallet" type="text" placeholder="Wallet address (0x...)">
+    <div class="g-recaptcha" data-sitekey="6LcxI3UrAAAAAOoC25nCct33LeEJHxYCG0ClO9wQ"></div>
+    <button onclick="claimFaucet()">Claim Faucet</button>
+    <div id="result"></div>
+    <div id="totalClaimed">🔥 Total wallet claimed: ...</div>
+    <pre id="claimHistory">Loading claim history...</pre>
+    <div class="donate-section">
+      <div class="donate-address">DONATE: 0x3feBdD2e594107D010FB551569cCEed8E7041Df4</div><br />
+      <button class="copy-button" onclick="copyAddress()">Copy</button>
     </div>
-
-    <footer>
-      <div class="footer-label">CHIPS OFFICIAL</div>
-      <div class="footer-links">
-        <a href="https://x.com/chipsprotocol" target="_blank">Twitter</a>
-        <a href="https://t.me/chipsprotocol" target="_blank">Telegram</a>
-        <a href="https://999chips.netlify.app" target="_blank">999CHIPS</a>
-      </div>
-      <div class="footer-label">DEV</div>
-      <div class="footer-links">
-        <a href="https://x.com/cryptoshilil" target="_blank">Dev Twitter</a>
-      </div>
-    </footer>
   </div>
+
+  <footer>
+    <div class="footer-label">CHIPS OFFICIAL</div>
+    <div class="footer-links">
+      <a href="https://x.com/chipsprotocol" target="_blank">Twitter</a>
+      <a href="https://t.me/chipsprotocol" target="_blank">Telegram</a>
+      <a href="https://999chips.netlify.app" target="_blank">999CHIPS</a>
+    </div>
+    <div class="footer-label">DEV</div>
+    <div class="footer-links">
+      <a href="https://x.com/cryptoshilil" target="_blank">Dev Twitter</a>
+    </div>
+  </footer>
 
   <script>
     async function claimFaucet() {
@@ -178,49 +175,39 @@
         return;
       }
 
-      if (!wallet) {
-        resultDiv.innerHTML = "❌ Wallet address is required.";
-        return;
-      }
-
-      if (!wallet.match(/^0x[a-fA-F0-9]{40}$/)) {
+      if (!wallet || !wallet.match(/^0x[a-fA-F0-9]{40}$/)) {
         resultDiv.innerHTML = "❌ Invalid wallet address.";
         return;
       }
 
       try {
-        const response = await fetch("/api/claim", {
+        const res = await fetch("/api/claim", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ wallet, captcha: token }),
         });
-        const data = await response.json();
-
-        if (response.ok) {
-          const txUrl = `http://testnet.chipsprotocol.com/tx/${data.txHash}`;
-          resultDiv.innerHTML = `✅ Success! <a href="${txUrl}" target="_blank">${txUrl}</a>`;
+        const data = await res.json();
+        if (res.ok) {
+          const txLink = `http://testnet.chipsprotocol.com/tx/${data.txHash}`;
+          resultDiv.innerHTML = `✅ Success! <a href="${txLink}" target="_blank">${txLink}</a>`;
           totalClaimedDiv.innerHTML = `🔥 Total wallet claimed: ${data.totalClaimed}`;
-          if (data.allClaims && Array.isArray(data.allClaims)) {
-            historyBlock.innerText = data.allClaims.map(addr => `• ${addr} — 1000 CHIPS`).reverse().join("\n");
-          }
+          historyBlock.innerText = data.allClaims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
           grecaptcha.reset();
         } else {
           resultDiv.innerHTML = `❌ Error: ${data.error}`;
           grecaptcha.reset();
         }
-      } catch (error) {
-        resultDiv.innerHTML = `❌ Unexpected error occurred.`;
+      } catch (err) {
+        resultDiv.innerHTML = "❌ Unexpected error occurred.";
         grecaptcha.reset();
       }
     }
 
     function copyAddress() {
       const address = "0x3feBdD2e594107D010FB551569cCEed8E7041Df4";
-      navigator.clipboard.writeText(address).then(() => {
-        document.getElementById("result").innerHTML = "✅ Address copied to clipboard.";
-      }).catch(() => {
-        document.getElementById("result").innerHTML = "❌ Failed to copy address.";
-      });
+      navigator.clipboard.writeText(address)
+        .then(() => document.getElementById("result").innerHTML = "✅ Address copied.")
+        .catch(() => document.getElementById("result").innerHTML = "❌ Copy failed.");
     }
 
     window.addEventListener("load", async () => {
@@ -229,12 +216,12 @@
         const data = await res.json();
         if (res.ok && data.claims) {
           document.getElementById("totalClaimed").innerText = `🔥 Total wallet claimed: ${data.claims.length}`;
-          document.getElementById("claimHistory").innerText = data.claims.map(addr => `• ${addr} — 1000 CHIPS`).reverse().join("\n");
+          document.getElementById("claimHistory").innerText = data.claims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
         } else {
-          document.getElementById("claimHistory").innerText = "❌ Failed to load claim history.";
+          document.getElementById("claimHistory").innerText = "❌ Failed to load history.";
         }
       } catch (err) {
-        document.getElementById("claimHistory").innerText = "❌ Could not load claim history.";
+        document.getElementById("claimHistory").innerText = "❌ Error loading history.";
       }
     });
   </script>
