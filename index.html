@@ -78,6 +78,11 @@
     #result a {
       color: #0f0;
       word-break: break-all;
+      display: inline-block;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     #totalClaimed {
@@ -132,6 +137,9 @@
       padding: 15px 0;
       text-align: center;
       font-size: 14px;
+      position: sticky;
+      bottom: 0;
+      width: 100%;
     }
 
     .footer-label {
@@ -211,6 +219,7 @@
       const resultDiv = document.getElementById("result");
       const totalClaimedDiv = document.getElementById("totalClaimed");
       const historyBlock = document.getElementById("claimHistory");
+      const claimButton = document.querySelector("button[onclick='claimFaucet()']");
 
       const token = grecaptcha.getResponse();
       if (!token) {
@@ -223,6 +232,10 @@
         return;
       }
 
+      claimButton.disabled = true;
+      claimButton.innerText = "Loading...";
+      resultDiv.innerHTML = "⏳ Processing...";
+
       try {
         const res = await fetch("/api/claim", {
           method: "POST",
@@ -234,7 +247,7 @@
           const txLink = `http://testnet.chipsprotocol.com/tx/${data.txHash}`;
           resultDiv.innerHTML = `✅ Success! <a href="${txLink}" target="_blank">${txLink}</a>`;
           totalClaimedDiv.innerHTML = `🔥 Total wallet claimed: ${data.totalClaimed}`;
-          historyBlock.innerText = data.allClaims.reverse().map(addr => `• ${addr} — 1000 CHIPS`).join("\n");
+          historyBlock.innerText = [`• ${wallet} — 1000 CHIPS`, ...data.allClaims].reverse().map(addr => addr.startsWith('•') ? addr : `• ${addr} — 1000 CHIPS`).join("\n");
           grecaptcha.reset();
         } else {
           resultDiv.innerHTML = `❌ Error: ${data.error}`;
@@ -243,6 +256,9 @@
       } catch (err) {
         resultDiv.innerHTML = "❌ Unexpected error occurred.";
         grecaptcha.reset();
+      } finally {
+        claimButton.disabled = false;
+        claimButton.innerText = "Claim Faucet";
       }
     }
 
